@@ -5,7 +5,7 @@ import { useUser, useAuth } from '@clerk/nextjs';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import NavBar from '../components/NavBar';
 import ModernScheduleCalendar from '../components/SchedulerCalendar';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 
 export default function CreateSchedulePage() {
   const { signOut, getToken } = useAuth();

@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef, forwardRef, useImperativeHandle, useMemo } from 'react';
 import { useUser, useAuth } from "@clerk/nextjs";
 import { Calendar, Users, X, Plus } from 'lucide-react';
-import { supabase } from '@/lib/supabaseClient';
+import { supabase } from '../../../lib/supabaseClient';
 
 const ModernScheduleCalendar = forwardRef(({ onMonthChange, onShiftRemove }, ref) => {
   const { user } = useUser();

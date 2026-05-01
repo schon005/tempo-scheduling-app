@@ -12,7 +12,7 @@ import { format, differenceInHours, parse, startOfWeek, endOfWeek } from 'date-f
 import Papa from 'papaparse'; // For CSV export
 import jsPDF from 'jspdf'; // For PDF export
 import html2canvas from 'html2canvas'; // For PDF export
-import { supabase } from '@/lib/supabaseClient'; // Update path if needed
+import { supabase } from '../../../lib/supabaseClient'; // Update path if needed
 
 const apiUrl = process.env.NODE_ENV === 'production'
   ? 'https://tempo-scheduling-webapp1-1.vercel.app'

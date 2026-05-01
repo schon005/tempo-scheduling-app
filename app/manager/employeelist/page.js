@@ -4,7 +4,7 @@ import { useUser, useAuth, SignOutButton } from "@clerk/nextjs";
 import NavBar from "../components/NavBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase } from "../../../lib/supabaseClient";
 
 export default function EmployeeListPage() {
   const { user } = useUser();
