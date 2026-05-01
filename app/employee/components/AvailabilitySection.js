@@ -2,11 +2,11 @@
 
 import { Clock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "../../../backend/database/supabaseClient"; // Adjust the import path if needed
+import { supabase } from "@/lib/supabaseClient"; // Adjust the import path if needed
 
 const SHIFTS = {
   MORNING: "morning",
-  AFTERNOON: "afternoon",cd C:\Users\sarah\Downloads\tempo_scheduling_webapp1.1-main
+  AFTERNOON: "afternoon",
 };
 
 const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];

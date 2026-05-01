@@ -2,7 +2,7 @@
 
 import { Clock } from "lucide-react";
 import { useState, useEffect } from "react";
-import { supabase } from "../../../backend/database/supabaseClient"; // Adjust the import path if needed
+import { supabase } from "@/lib/supabaseClient"; // Adjust the import path if needed
 
 const SHIFTS = {
   MORNING: "morning",
