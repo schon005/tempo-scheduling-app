@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+/* In your globals.css or a CSS module */
+.react-calendar {
+  border: none; /* Remove default border */
+  border-radius: 8px; /* Rounded corners */
+}
+
+.react-calendar__tile {
+  border-radius: 4px; /* Rounded corners for each tile */
+}
+
+.react-calendar__tile:hover {
+  background-color: #f0f0f0; /* Light gray on hover */
+}
+
+.highlight-sunday {
+  background-color: #ffcccc; /* Custom background for Sundays */
+}
+
+.highlight-sunday:hover {
+  background-color: #ff9999; /* Darker shade on hover */
+}

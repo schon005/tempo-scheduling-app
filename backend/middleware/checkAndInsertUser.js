@@ -60,7 +60,7 @@ const checkAndInsertUser = async (req, res, next) => {
           first_name: firstName || '',
           last_name: lastName || '',
           role: 'employee',
-          is_whitelisted: true
+          is_whitelisted: false
         })
         .select()
         .single();
