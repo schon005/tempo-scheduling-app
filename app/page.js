@@ -1,98 +1,59 @@
 "use client";
 
-import { useUser, useAuth } from '@clerk/nextjs';
-import { useState, useEffect } from 'react';
-import NavBar from './components/NavBar';
-import { Notifications } from '@mui/icons-material';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import EmployeeCalendar from './components/Calendar';
-import { supabase } from '../../lib/supabaseClient';
+import { SignUpButton, SignedOut, useAuth } from '@clerk/nextjs';
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
-export default function EmployeePage() {
-  const { signOut } = useAuth();
-  const { user } = useUser();
-
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [profileImageUrl, setProfileImageUrl] = useState('/images/default-avatar.png');
-  const [userShifts, setUserShifts] = useState([]);
-
+export default function Home() {
+  const { isLoaded, isSignedIn } = useAuth();
   const router = useRouter();
 
-  const toggleMenu = () => setMenuOpen(!menuOpen);
-
   useEffect(() => {
-    const fetchUserShifts = async () => {
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('my_shifts')
-        .select('*')
-        .order('shift_start', { ascending: true });
-
-      if (!error) setUserShifts(data || []);
-    };
-
-    fetchUserShifts();
-  }, [user]);
+    if (isLoaded && isSignedIn) {
+      router.push("/whitelist");
+    }
+  }, [isLoaded, isSignedIn, router]);
 
   return (
-    <div className="relative min-h-screen text-black">
-
+    <div className="relative min-h-screen flex items-center justify-center px-6 py-10 text-black">
+      
       {/* Background */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center blur-2xl"
-        style={{ backgroundImage: `url('/images/loginpagebackground.webp')` }}
+        className="absolute inset-0 -z-10 bg-cover bg-center blur-lg"
+        style={{
+          backgroundImage: `url('/images/loginpagebackground.webp')`,
+        }}
       />
 
-      <NavBar menuOpen={menuOpen} toggleMenu={toggleMenu} />
+      <SignedOut>
+        <main className="flex flex-col items-center text-center w-full max-w-[800px]">
+          
+          <div className="bg-black/15 backdrop-blur-md rounded-xl border-2 border-white p-8 flex flex-col items-center shadow-md w-full">
 
-      {/* ===== HEADER + TITLE (FIXED) ===== */}
-      <div className={`flex flex-col ${menuOpen ? 'ml-20 sm:ml-64' : 'ml-20'} px-4 sm:px-8 pt-6`}>
+            <Image
+              src="/images/tempo-removebg-preview.png"
+              alt="Tempo logo"
+              width={160}
+              height={40}
+            />
 
-        {/* Top right header */}
-        <div className="flex justify-end items-center gap-3 mb-4">
-
-          <Notifications className="text-white text-3xl" />
-
-          <Image
-            className="rounded-full"
-            src={profileImageUrl}
-            alt="Profile"
-            width={36}
-            height={36}
-          />
-
-          <span className="text-white font-semibold max-w-[120px] truncate">
-            {user?.emailAddresses?.[0]?.emailAddress}
-          </span>
-
-        </div>
-
-        {/* Title */}
-        <h1 className="text-2xl sm:text-4xl font-bold text-white leading-tight break-words">
-          Welcome to the Manager Dashboard
-        </h1>
-
-      </div>
-
-      {/* ===== MAIN CONTENT ===== */}
-      <div className={`px-4 sm:px-8 pb-8 mt-6 ${menuOpen ? 'ml-20 sm:ml-64' : 'ml-20'}`}>
-
-        <div className="mb-6 text-white">
-          {user ? (
-            <p className="text-lg font-semibold">
-              Hello, {user.firstName} {user.lastName}
+            <p className="mt-4 font-bold text-lg">
+              The best scheduling platform on planet Earth.
             </p>
-          ) : (
-            <p>Loading...</p>
-          )}
-        </div>
 
-        <EmployeeCalendar shifts={userShifts} />
+            <div className="mt-10">
+              <SignUpButton>
+                <button className="rounded-full border border-black bg-black text-white px-6 py-3 font-bold">
+                  Get Started →
+                </button>
+              </SignUpButton>
+            </div>
 
-      </div>
+          </div>
 
+        </main>
+      </SignedOut>
     </div>
   );
 }
