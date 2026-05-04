@@ -16,39 +16,39 @@ export default function Home() {
   }, [isLoaded, isSignedIn, router]);
 
   return (
-    <div className="relative min-h-screen p-8 pb-20 gap-8 sm:p-20 font-[family-name:var(--font-geist-sans)] text-black">
+    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-10 sm:px-20 text-black">
       
       {/* Background */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center filter blur-lg"
+        className="absolute inset-0 -z-10 bg-cover bg-center blur-lg"
         style={{
           backgroundImage: `url('/images/loginpagebackground.webp')`,
         }}
-      ></div>
+      />
 
       <SignedOut>
-        <main className="flex flex-col gap-4 justify-center items-center text-center min-h-screen" style={{ transform: 'translateY(-10%)' }}>
+        <main className="flex flex-col items-center justify-center text-center w-full max-w-[900px]">
           
           {/* Main Card */}
-          <div className="bg-black/15 backdrop-blur-md rounded-xl border-2 border-white p-8 flex flex-col items-center justify-center shadow-md w-full max-w-[800px] h-[500px]">
+          <div className="bg-black/15 backdrop-blur-md rounded-xl border-2 border-white p-6 sm:p-8 flex flex-col items-center justify-center shadow-md w-full max-w-[700px] min-h-[420px]">
             
             <Image
               className="mx-auto"
               src="/images/tempo-removebg-preview.png"
               alt="Tempo logo"
-              width={180}
+              width={160}
               height={40}
               priority
             />
 
-            <div className="text-lg sm:text-xl font-[family-name:var(--font-geist-mono)] mt-2 font-bold">
+            <div className="text-lg sm:text-xl font-[family-name:var(--font-geist-mono)] mt-4 font-bold">
               The best scheduling platform on planet Earth.
             </div>
 
-            <div className="flex flex-row gap-4 items-center justify-center mt-[50px]">
+            <div className="flex justify-center mt-10">
               <SignUpButton>
                 <button 
-                  className="rounded-full border border-black transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-lg sm:text-base h-12 w-40 px-5 font-bold"
+                  className="rounded-full border border-black transition-colors flex items-center justify-center bg-foreground text-background hover:bg-[#383838] dark:hover:bg-[#ccc] text-base h-12 w-40 px-5 font-bold"
                 >
                   Get Started →
                 </button>
@@ -58,7 +58,7 @@ export default function Home() {
           </div>
 
           {/* Footer */}
-          <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center mt-20 font-semibold">
+          <footer className="flex flex-wrap gap-6 items-center justify-center mt-12 font-semibold text-sm sm:text-base">
             
             <a
               className="flex items-center gap-2 hover:underline hover:underline-offset-4"
