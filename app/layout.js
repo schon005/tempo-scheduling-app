@@ -26,8 +26,8 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           
-          {/* GLOBAL TOP SPACING FIX (prevents header overlap) */}
-          <div className="pt-[100px] sm:pt-[110px]">
+          {/* 🔥 HARD FIX: LARGE SAFE SPACING FOR HEADER */}
+          <div className="pt-[140px] sm:pt-[120px] md:pt-[110px]">
             {children}
           </div>
 
