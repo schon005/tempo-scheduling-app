@@ -1,0 +1,18 @@
+[33m246c9b0[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m fix proper layout structure
+[33maff4ed6[m fix layout overlap mobile + desktop FINAL
+[33med9a7a5[m fix: remove wrong navbar import from root layout
+[33md32713b[m FINAL CLEAN layout fix
+[33mef9c777[m fix build errors remove broken imports
+[33m03e49d2[m FINAL fix header + mobile layout clean
+[33mfbf9d02[m fix build error remove wrong imports from home
+[33m7fed20b[m final fix layout mobile + desktop
+[33ma59455a[m fix mobile header + layout overlap FINAL
+[33m5661cf7[m fix landing page layout responsiveness
+[33m87d4d71[m force fix mobile header overlap
+[33mbd6c519[m fix mobile header spacing
+[33m851a338[m fix mobile layout
+[33m64ef92a[m Revise README for Tempo Scheduling App
+[33m10aeaa9[m fix supabase imports
+[33mae8868f[m fix supabase imports
+[33mea8ff51[m fix deploy
+[33m1693c9a[m tempo app
