@@ -1,103 +1,92 @@
 "use client";
 
-import { SignUpButton, SignedOut, useAuth } from '@clerk/nextjs';
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useUser, useAuth } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
+import NavBar from './components/NavBar';
+import { Notifications } from '@mui/icons-material';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import EmployeeCalendar from './components/Calendar';
+import { supabase } from '../../lib/supabaseClient';
 
-export default function Home() {
-  const { isLoaded, isSignedIn } = useAuth();
+export default function EmployeePage() {
+  const { signOut } = useAuth();
+  const { user } = useUser();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState('/images/default-avatar.png');
+  const [userShifts, setUserShifts] = useState([]);
+
   const router = useRouter();
 
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push("/whitelist");
-    }
-  }, [isLoaded, isSignedIn, router]);
+    const fetchUserShifts = async () => {
+      if (!user) return;
+
+      const { data, error } = await supabase
+        .from('my_shifts')
+        .select('*')
+        .order('shift_start', { ascending: true });
+
+      if (!error) setUserShifts(data || []);
+    };
+
+    fetchUserShifts();
+  }, [user]);
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center px-6 py-10 sm:px-20 text-black">
-      
+    <div className="relative min-h-screen text-black">
+
       {/* Background */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center blur-lg"
-        style={{
-          backgroundImage: `url('/images/loginpagebackground.webp')`,
-        }}
+        className="absolute inset-0 -z-10 bg-cover bg-center blur-2xl"
+        style={{ backgroundImage: `url('/images/loginpagebackground.webp')` }}
       />
 
-      <SignedOut>
-        <main className="flex flex-col items-center justify-center text-center w-full max-w-[900px]">
-          
-          {/* Main Card */}
-          <div className="bg-black/15 backdrop-blur-md rounded-xl border-2 border-white p-6 sm:p-8 flex flex-col items-center justify-center shadow-md w-full max-w-[700px] min-h-[420px]">
-            
-            <Image
-              className="mx-auto"
-              src="/images/tempo-removebg-preview.png"
-              alt="Tempo logo"
-              width={160}
-              height={40}
-              priority
-            />
+      <NavBar menuOpen={menuOpen} toggleMenu={toggleMenu} />
 
-            <div className="text-lg sm:text-xl font-[family-name:var(--font-geist-mono)] mt-4 font-bold">
-              The best scheduling platform on planet Earth.
-            </div>
+      {/* ✅ FIXED HEADER (NO OVERLAP) */}
+      <div className={`flex justify-end items-center gap-3 px-4 sm:px-8 pt-6 pb-4 ${menuOpen ? 'ml-20 sm:ml-64' : 'ml-20'}`}>
 
-            <div className="flex justify-center mt-10">
-              <SignUpButton>
-                <button 
-                  className="rounded-full border border-black transition-colors flex items-center justify-center bg-foreground text-background hover:bg-[#383838] dark:hover:bg-[#ccc] text-base h-12 w-40 px-5 font-bold"
-                >
-                  Get Started →
-                </button>
-              </SignUpButton>
-            </div>
+        <Notifications className="text-white text-3xl" />
 
-          </div>
+        <Image
+          className="rounded-full"
+          src={profileImageUrl}
+          alt="Profile"
+          width={36}
+          height={36}
+        />
 
-          {/* Footer */}
-          <footer className="flex flex-wrap gap-6 items-center justify-center mt-12 font-semibold text-sm sm:text-base">
-            
-            <a
-              className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="https://nextjs.org/learn"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span>📄</span>
-              About us
-            </a>
+        <span className="text-white font-semibold max-w-[120px] sm:max-w-none truncate">
+          {user?.emailAddresses?.[0]?.emailAddress}
+        </span>
 
-            <a
-              className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="https://nicepage.com/website-mockup/preview/our-partners-83938?device=desktop"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span>🤝</span>
-              Our partners
-            </a>
+      </div>
 
-            <a
-              className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-              href="/"
-            >
-              <Image
-                aria-hidden
-                src="/images/default-avatar.png"
-                alt="User icon"
-                width={16}
-                height={16}
-              />
-              Go to a new tab →
-            </a>
+      {/* ✅ MAIN CONTENT (SPACED PROPERLY) */}
+      <div className={`px-4 sm:px-8 pb-8 ${menuOpen ? 'ml-20 sm:ml-64' : 'ml-20'}`}>
 
-          </footer>
+        <h1 className="text-2xl sm:text-4xl font-bold text-white mb-6 leading-tight break-words">
+          Welcome to the Employee Dashboard
+        </h1>
 
-        </main>
-      </SignedOut>
+        <div className="mb-6 text-white">
+          {user ? (
+            <>
+              <p className="text-lg font-semibold">
+                Hello, {user.firstName} {user.lastName}
+              </p>
+            </>
+          ) : (
+            <p>Loading...</p>
+          )}
+        </div>
+
+        <EmployeeCalendar shifts={userShifts} />
+
+      </div>
     </div>
   );
 }
