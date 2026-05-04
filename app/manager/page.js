@@ -172,7 +172,7 @@ export default function ManagerDashboard() {
     fetchProfileImage();
     fetchNotifications();
     fetchSchedules(selectedDate);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, selectedDate]);
 
   const handlePreviousDay = () => setSelectedDate((prevDate) => subDays(prevDate, 1));
@@ -190,77 +190,89 @@ export default function ManagerDashboard() {
 
       <NavBar menuOpen={menuOpen} toggleMenu={toggleMenu} />
 
-      <div className="absolute top-4 right-8 flex items-center gap-4 z-50">
-        <button onClick={toggleNotifications} className="relative">
-          <Notifications className="text-white text-4xl cursor-pointer" />
-          {unreadNotificationCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-4 flex items-center justify-center">
-              {unreadNotificationCount}
-            </span>
-          )}
-          {notificationsOpen && (
-            <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
-              {notifications.length > 0 ? (
-                notifications.map((notification) => (
-                  <div key={notification.id} className="mb-2 flex items-center justify-between">
-                    <p
-                      onClick={() => handleNotificationClick(notification.id)}
-                      className="cursor-pointer hover:text-blue-600"
-                    >
-                      {notification.message}
-                    </p>
-                    {!notification.is_read && (
-                      <CheckCircleOutline
-                        onClick={() => markAsRead(notification.id)}
-                        className="text-gray-400 cursor-pointer hover:text-black"
-                        titleAccess="Mark as read"
-                      />
-                    )}
-                  </div>
-                ))
-              ) : (
-                <p>No new notifications.</p>
-              )}
-            </div>
-          )}
-        </button>
-
-        <div className="relative">
-          <button onClick={toggleProfileMenu} className="flex items-center gap-2">
-            <Image
-              className="rounded-full"
-              src={profileImageUrl}
-              alt="Profile image"
-              width={40}
-              height={40}
-            />
-            <span className="text-white font-semibold">
-              {user?.emailAddresses[0].emailAddress}
-            </span>
+      <header
+        className={`sticky top-0 z-30 border-b border-white/10 bg-black/80 backdrop-blur-md transition-all duration-300 ${
+          menuOpen ? "ml-64" : "ml-20"
+        }`}
+      >
+        <div className="flex min-h-16 items-center justify-end gap-3 px-4 sm:px-8">
+          <button onClick={toggleNotifications} className="relative">
+            <Notifications className="text-white text-4xl cursor-pointer" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full text-xs w-5 h-4 flex items-center justify-center">
+                {unreadNotificationCount}
+              </span>
+            )}
+            {notificationsOpen && (
+              <div className="absolute right-0 mt-2 w-64 bg-white shadow-lg rounded-lg p-4 z-50">
+                {notifications.length > 0 ? (
+                  notifications.map((notification) => (
+                    <div key={notification.id} className="mb-2 flex items-center justify-between">
+                      <p
+                        onClick={() => handleNotificationClick(notification.id)}
+                        className="cursor-pointer hover:text-blue-600"
+                      >
+                        {notification.message}
+                      </p>
+                      {!notification.is_read && (
+                        <CheckCircleOutline
+                          onClick={() => markAsRead(notification.id)}
+                          className="text-gray-400 cursor-pointer hover:text-black"
+                          titleAccess="Mark as read"
+                        />
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <p>No new notifications.</p>
+                )}
+              </div>
+            )}
           </button>
-          {profileMenuOpen && (
-            <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg z-50">
-              <button
-                onClick={handleEditProfile}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-              >
-                Edit Profile
-              </button>
-              <button
-                onClick={handleSignOut}
-                className="block w-full text-left px-4 py-2 hover:bg-gray-200"
-              >
-                Sign Out
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
 
-      <div className={`flex-grow p-8 transition-all z-10 ${menuOpen ? "ml-64" : "ml-20"}`}>
-        <h1 className="text-4xl font-bold text-left text-white mb-8">
+          <div className="relative">
+            <button onClick={toggleProfileMenu} className="flex min-w-0 items-center gap-2">
+              <Image
+                className="rounded-full"
+                src={profileImageUrl}
+                alt="Profile image"
+                width={40}
+                height={40}
+              />
+
+              <span className="hidden md:block max-w-[220px] truncate text-white font-semibold">
+                {user?.emailAddresses[0].emailAddress}
+              </span>
+            </button>
+            {profileMenuOpen && (
+              <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg z-50">
+                <button
+                  onClick={handleEditProfile}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                >
+                  Edit Profile
+                </button>
+                <button
+                  onClick={handleSignOut}
+                  className="block w-full text-left px-4 py-2 hover:bg-gray-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main
+        className={`relative z-10 px-4 sm:px-8 py-6 transition-all duration-300 ${
+          menuOpen ? "ml-64" : "ml-20"
+        }`}
+      >
+        <h1 className="max-w-4xl text-3xl sm:text-4xl lg:text-5xl leading-tight font-bold text-left text-white mb-8">
           Welcome to the Manager Dashboard
         </h1>
+
         <div className="bg-white/50 backdrop-blur-md p-6 rounded-lg shadow-md">
           <div className="flex justify-between items-center mb-4">
             <button
@@ -302,7 +314,7 @@ export default function ManagerDashboard() {
             <p className="text-center text-gray-500">No schedules available for this day.</p>
           )}
         </div>
-      </div>
+      </main>
     </div>
   );
 }
