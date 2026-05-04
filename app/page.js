@@ -1,59 +1,171 @@
 "use client";
 
-import { SignUpButton, SignedOut, useAuth } from '@clerk/nextjs';
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useUser, useAuth } from '@clerk/nextjs';
+import { useState, useEffect } from 'react';
+import NavBar from './components/NavBar';
+import { Notifications } from '@mui/icons-material';
+import { CheckCircle } from '@mui/icons-material';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import EmployeeCalendar from './components/Calendar';
+import { supabase } from '../../lib/supabaseClient';
 
-export default function Home() {
-  const { isLoaded, isSignedIn } = useAuth();
+export default function EmployeePage() {
+  const { signOut, getToken } = useAuth();
+  const { user } = useUser();
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [profileImageUrl, setProfileImageUrl] = useState('/images/default-avatar.png');
+  const [notifications, setNotifications] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [userShifts, setUserShifts] = useState([]);
+
   const router = useRouter();
 
+  const toggleMenu = () => setMenuOpen(!menuOpen);
+  const toggleNotifications = () => setNotificationsOpen(!notificationsOpen);
+  const toggleProfileMenu = () => setProfileMenuOpen(!profileMenuOpen);
+
+  // PROFILE IMAGE
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push("/whitelist");
-    }
-  }, [isLoaded, isSignedIn, router]);
+    const fetchUserProfileImage = async () => {
+      try {
+        const token = await getToken();
+        const response = await fetch('/api/users/profile', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const data = await response.json();
+        setProfileImageUrl(
+          response.ok && data.profileImageUrl
+            ? `${data.profileImageUrl}?t=${new Date().getTime()}`
+            : '/images/default-avatar.png'
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (user) fetchUserProfileImage();
+  }, [user, getToken]);
+
+  // SHIFTS
+  useEffect(() => {
+    const fetchUserShifts = async () => {
+      if (!user) return;
+
+      const { data: userRecord } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_user_id', user.id)
+        .single();
+
+      if (!userRecord) return;
+
+      const { data } = await supabase
+        .from('my_shifts')
+        .select('*')
+        .eq('user_id', userRecord.id)
+        .order('shift_start', { ascending: true });
+
+      setUserShifts(data || []);
+    };
+
+    fetchUserShifts();
+  }, [user]);
+
+  // NOTIFICATIONS
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      if (!user) return;
+
+      const { data: userRecord } = await supabase
+        .from('users')
+        .select('id')
+        .eq('clerk_user_id', user.id)
+        .single();
+
+      if (!userRecord) return;
+
+      const { data } = await supabase
+        .from('notifications')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      setNotifications(data || []);
+      setUnreadCount(data?.filter(n => !n.is_read).length || 0);
+    };
+
+    fetchNotifications();
+  }, [user]);
 
   return (
-    <div className="relative min-h-screen flex items-center justify-center px-6 py-10 text-black">
-      
-      {/* Background */}
+    <div className="relative min-h-screen text-black flex">
+
+      {/* BACKGROUND */}
       <div
-        className="absolute inset-0 -z-10 bg-cover bg-center blur-lg"
-        style={{
-          backgroundImage: `url('/images/loginpagebackground.webp')`,
-        }}
+        className="absolute inset-0 -z-10 bg-cover bg-center blur-2xl"
+        style={{ backgroundImage: `url('/images/loginpagebackground.webp')` }}
       />
 
-      <SignedOut>
-        <main className="flex flex-col items-center text-center w-full max-w-[800px]">
-          
-          <div className="bg-black/15 backdrop-blur-md rounded-xl border-2 border-white p-8 flex flex-col items-center shadow-md w-full">
+      {/* NAVBAR */}
+      <NavBar menuOpen={menuOpen} toggleMenu={toggleMenu} />
 
+      {/* MAIN CONTENT */}
+      <div className={`flex-1 flex flex-col ${menuOpen ? 'ml-64' : 'ml-20'}`}>
+
+        {/* 🔥 FIXED HEADER (NO MORE OVERLAP) */}
+        <div className="flex justify-end items-center gap-4 p-4">
+
+          {/* NOTIFICATIONS */}
+          <button onClick={toggleNotifications} className="relative">
+            <Notifications className="text-white text-3xl" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* USER */}
+          <button onClick={toggleProfileMenu} className="flex items-center gap-2 max-w-[160px]">
             <Image
-              src="/images/tempo-removebg-preview.png"
-              alt="Tempo logo"
-              width={160}
-              height={40}
+              className="rounded-full"
+              src={profileImageUrl}
+              alt="Profile"
+              width={36}
+              height={36}
             />
+            <span className="text-white text-sm truncate">
+              {user?.emailAddresses[0].emailAddress}
+            </span>
+          </button>
 
-            <p className="mt-4 font-bold text-lg">
-              The best scheduling platform on planet Earth.
+        </div>
+
+        {/* CONTENT */}
+        <div className="px-4 sm:px-8 pb-8">
+
+          {/* TITLE */}
+          <h1 className="text-2xl sm:text-4xl font-bold text-white mb-6 leading-tight">
+            Welcome to the Employee Dashboard
+          </h1>
+
+          {/* GREETING */}
+          {user && (
+            <p className="text-white mb-6 text-sm sm:text-base">
+              Hello, {user.firstName} {user.lastName}
             </p>
+          )}
 
-            <div className="mt-10">
-              <SignUpButton>
-                <button className="rounded-full border border-black bg-black text-white px-6 py-3 font-bold">
-                  Get Started →
-                </button>
-              </SignUpButton>
-            </div>
+          {/* CALENDAR */}
+          <EmployeeCalendar shifts={userShifts} />
 
-          </div>
+        </div>
 
-        </main>
-      </SignedOut>
+      </div>
     </div>
   );
 }
