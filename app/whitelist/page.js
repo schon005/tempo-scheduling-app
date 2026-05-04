@@ -16,25 +16,60 @@ export default function WhitelistPage() {
     const checkWhitelistStatus = async () => {
       if (user && user.emailAddresses?.length > 0) {
         try {
-          const email = user.emailAddresses[0].emailAddress; // Get primary email
+          const email =
+            user.primaryEmailAddress?.emailAddress ||
+            user.emailAddresses[0].emailAddress; // Get primary email
+
           const { data, error } = await supabase
             .from("users")
-            .select("role, is_whitelisted")
+            .select("id, role, is_whitelisted")
             .eq("email", email)
-            .single();
+            .maybeSingle();
 
           if (error) throw error;
 
-          if (data && data.is_whitelisted) {
+          if (data) {
+            const { error: updateError } = await supabase
+              .from("users")
+              .update({
+                clerk_user_id: user.id,
+                email,
+                username: user.username || email.split("@")[0],
+                first_name: user.firstName || "",
+                last_name: user.lastName || "",
+                is_whitelisted: true,
+              })
+              .eq("id", data.id);
+
+            if (updateError) throw updateError;
+
             if (data.role === "manager") {
               router.push("/manager");
-            } else if (data.role === "employee") {
-              router.push("/employee");
             } else {
-              alert("Your role is not recognized.");
+              router.push("/employee");
             }
           } else {
-            setError("Your account is not whitelisted. Please contact management.");
+            const { data: newUser, error: insertError } = await supabase
+              .from("users")
+              .insert({
+                clerk_user_id: user.id,
+                email,
+                username: user.username || email.split("@")[0],
+                first_name: user.firstName || "",
+                last_name: user.lastName || "",
+                role: "employee",
+                is_whitelisted: true,
+              })
+              .select("role")
+              .single();
+
+            if (insertError) throw insertError;
+
+            if (newUser.role === "manager") {
+              router.push("/manager");
+            } else {
+              router.push("/employee");
+            }
           }
         } catch (err) {
           console.error("Error checking user role and whitelist status:", err.message);
@@ -50,32 +85,63 @@ export default function WhitelistPage() {
     e.preventDefault();
 
     try {
+      const email =
+        user.primaryEmailAddress?.emailAddress ||
+        user.emailAddresses[0].emailAddress;
+
       const { data, error } = await supabase
-        .from("whitelist_code")
-        .select("code")
-        .eq("code", code)
-        .single();
-
-      if (error || !data) {
-        setError("Invalid whitelist code.");
-        return;
-      }
-
-      const email = user.emailAddresses[0].emailAddress;
-
-      // Update user whitelist status
-      const { error: updateError } = await supabase
         .from("users")
-        .update({ is_whitelisted: true })
-        .eq("email", email);
+        .select("id, role")
+        .eq("email", email)
+        .maybeSingle();
 
-      if (updateError) {
-        setError("Failed to whitelist your account. Please try again.");
-        console.error("Error updating whitelist status:", updateError);
-        return;
+      if (error) throw error;
+
+      if (data) {
+        const { error: updateError } = await supabase
+          .from("users")
+          .update({
+            clerk_user_id: user.id,
+            email,
+            username: user.username || email.split("@")[0],
+            first_name: user.firstName || "",
+            last_name: user.lastName || "",
+            is_whitelisted: true,
+          })
+          .eq("id", data.id);
+
+        if (updateError) {
+          setError("Failed to whitelist your account. Please try again.");
+          console.error("Error updating whitelist status:", updateError);
+          return;
+        }
+
+        if (data.role === "manager") {
+          router.push("/manager");
+        } else {
+          router.push("/employee");
+        }
+      } else {
+        const { error: insertError } = await supabase
+          .from("users")
+          .insert({
+            clerk_user_id: user.id,
+            email,
+            username: user.username || email.split("@")[0],
+            first_name: user.firstName || "",
+            last_name: user.lastName || "",
+            role: "employee",
+            is_whitelisted: true,
+          });
+
+        if (insertError) {
+          setError("Failed to create your account. Please try again.");
+          console.error("Error creating user account:", insertError);
+          return;
+        }
+
+        router.push("/employee");
       }
-
-      router.push("/employee");
     } catch (err) {
       console.error("Error verifying whitelist code:", err.message);
       setError("An unexpected error occurred. Please try again.");
